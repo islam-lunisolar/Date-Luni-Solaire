@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calendrier Luni-Solaire d'Allah</title>
+
+  <style>
+    body { 
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial; 
+      display:flex; 
+      align-items:flex-start; 
+      justify-content:center; 
+      min-height:100vh; 
+      background:#ffffff; 
+      padding-top:20px; 
+      margin:0;
+    }
+    .card { 
+      text-align: center; 
+      background: linear-gradient(145deg, #d0ebff, #e6f2ff); 
+      color: #2b2b2b; 
+      padding: 20px; 
+      border-radius: 16px; 
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15); 
+      width:90%; 
+      max-width:400px;
+    }
+    h3 { margin:0 0 5px 0; font-size:18px; line-height:1.2; color:#1565c0; }
+    .sub-title { font-size:16px; margin-bottom:12px; font-weight:700; color:#1565c0; }
+    .date-line { font-size:16px; font-weight:700; margin:6px 0; word-wrap: break-word; }
+    .solar { color:#0288d1; }
+    .lunar { color:#43a047; }
+    .details { font-size:13px; color:#1565c0; margin-top:6px; word-wrap: break-word; } 
+    .copyright { margin-top:12px; font-size:11px; color:#2b2b2b; line-height:1.3; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h3>🌙☀️</h3>
+    <div class="sub-title">DATE ACTUELLE</div>
+
+    <div id="date-solaire" class="date-line solar"><strong>☀️ Date solaire</strong> = Chargement...</div>
+    <div id="date-lunaire" class="date-line lunar"><strong>🌙 Date Lunaire</strong> = Chargement...</div>
+
+    <div id="details-calendrier" class="details">Système luni-solaire coranique exclusif</div>
+
+    <div class="copyright">
+      © Copyright 1417-2025 - <strong>ANTONINO FRATERRIGO</strong>
+    </div>
+  </div>
+
+  <script>
+    function stripTime(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+
+    function calculerCalendrierLuniSolaire(dateTarget) {
+      const reference = new Date(2025, 8, 24);
+      const jourRef = 1;
+      const moisRef = 1;
+      const anneeRef = 1417;
+      const cyclesEmbolismiques = [1,4,7,9,12,15,18];
+      const dureeMois = [30,29,30,29,30,29,30,29,30,29,30,29,30];
+      const nomsMois = ['Chahr Ramadan','Shawwal','Dhul Qi\'dah','Dhul Hijjah','Muharram','Safar','Rabi al-Awwal','Rabi al-Thani','Jumada al-Awwal','Jumada al-Thani','Rajab','Sha\'ban','Al Ziadat'];
+
+      const daysElapsed = Math.floor((stripTime(dateTarget)-stripTime(reference))/86400000);
+
+      let annee = anneeRef, mois = moisRef, jour = jourRef;
+
+      if(daysElapsed>=0){
+        let restant = daysElapsed;
+        while(restant>0){
+          const isLeapYear = cyclesEmbolismiques.includes(annee%19);
+          const monthIndex = mois-1;
+          if(mois===13 && !isLeapYear){ mois=1; annee++; continue; }
+          const currentMonthLength=dureeMois[monthIndex];
+          const remainingInThisMonth=currentMonthLength-jour;
+          if(restant<=remainingInThisMonth){ jour+=restant; restant=0; break; }
+          restant-=(remainingInThisMonth+1); jour=1;
+          if(mois===12){ mois=isLeapYear?13:1; if(!isLeapYear) annee++; } else if(mois===13){ mois=1; annee++; } else mois++;
+        }
+      } else {
+        let aRetirer=-daysElapsed;
+        while(aRetirer>0){
+          if(aRetirer<jour){ jour-=aRetirer; aRetirer=0; break; }
+          aRetirer-=jour;
+          if(mois===1){ annee--; mois=cyclesEmbolismiques.includes(annee%19)?13:12; } else mois--;
+          const monthIndex = mois-1; jour=dureeMois[monthIndex];
+          if(mois===13 && !cyclesEmbolismiques.includes(annee%19)) mois=12;
+        }
+      }
+
+      const typeAnnee = cyclesEmbolismiques.includes(annee%19)?'Sanantin (12 mois + al Ziadat)':'Sininah (12 mois)';
+
+      return {jour, mois, nomMois:nomsMois[mois-1], annee, typeAnnee};
+    }
+
+    (function afficherDates(){
+      const aujourdhui = new Date();
+      const dateLong = aujourdhui.toLocaleDateString('fr-FR', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+      const lunar = calculerCalendrierLuniSolaire(aujourdhui);
+
+      document.getElementById('date-solaire').innerHTML = `<strong>☀️ Date solaire</strong> = ${dateLong}`;
+      document.getElementById('date-lunaire').innerHTML = `<strong>🌙 Date Lunaire</strong> = ${lunar.jour} ${lunar.nomMois} ${lunar.annee}`;
+      document.getElementById('details-calendrier').textContent = `Année ${lunar.typeAnnee} | Système métonique coranique`;
+    })();
+  </script>
+</body>
+</html>
