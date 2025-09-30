@@ -1,7 +1,7 @@
 {
   "name": "Calendrier Luni-Solaire d'Allah",
   "short_name": "Calendrier Allah",
-  "start_url": "./index.html",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#d0ebff",
   "theme_color": "#1565c0",
