@@ -1,4 +1,4 @@
-const cacheName = 'calendrier-v3';
+const cacheName = 'calendrier-v4';
 const filesToCache = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', (e) => {
